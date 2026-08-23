@@ -1,3 +1,5 @@
+
+
 const grids = document.querySelectorAll(".gridParent div");
 const gridParent = document.querySelector(".gridParent");
 const decisionPanel = document.getElementById("decisionPanel");
@@ -150,6 +152,7 @@ function makeBotMove () {
     const avlMoves = availableMoves()
     const random = Math.floor(Math.random() * avlMoves.length)
     grids[avlMoves[random]].textContent = 'O'
+    grids[avlMoves[random]].style.color = 'red'
     console.log(checkWinner() == 'O win')
     if(checkWinner() == 'O win'){
             showPanel('O win')
