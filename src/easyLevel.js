@@ -95,7 +95,7 @@ function makeBotMove() {
     const position = moves[randomIndex];
 
     grids[position].textContent = "O";
-    grids[position].style.color = 'red'
+    grids[position].style.color = 'red';
 
     if (checkGameState()) {
         return;
@@ -121,7 +121,7 @@ function handleClick(event) {
     }
 
     target.textContent = "X";
-    target.style.color = 'green'
+    target.style.color = 'green';
 
     if (checkGameState()) {
         return;

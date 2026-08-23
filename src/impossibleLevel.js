@@ -5,319 +5,244 @@ const gridParent = document.querySelector(".gridParent");
 const decisionPanel = document.getElementById("decisionPanel");
 const message = document.getElementById("message");
 
-document
-    .getElementById("restartBtn")
-    .addEventListener("click", () => {
-        location.reload();
-    });
+document.getElementById("restartBtn").addEventListener("click", () => {
+  location.reload();
+});
 
 const winningCombination = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
 ];
 
 let move = "bot";
 
 function showPanel(text) {
-    message.textContent = text;
-    decisionPanel.style.display = "flex";
+  message.textContent = text;
+  decisionPanel.style.display = "flex";
 }
 
 function getGridIndex(grid) {
-    return Number(grid.dataset.index);
+  return Number(grid.dataset.index);
 }
 
 function checkAvailableMoves() {
+  const moves = [];
 
-    const moves = [];
+  grids.forEach((grid) => {
+    if (grid.textContent.trim() === "") {
+      moves.push(getGridIndex(grid));
+    }
+  });
 
-    grids.forEach((grid) => {
-
-        if (grid.textContent.trim() === "") {
-            moves.push(getGridIndex(grid));
-        }
-
-    });
-
-    return moves;
+  return moves;
 }
 
 function checkDraw() {
-    return checkAvailableMoves().length === 0;
+  return checkAvailableMoves().length === 0;
 }
 
 function checkWinner() {
+  for (const [a, b, c] of winningCombination) {
+    const first = grids[a].textContent.trim();
 
-    for (const [a, b, c] of winningCombination) {
-
-        const first = grids[a].textContent.trim();
-
-        if (
-            first !== "" &&
-            first === grids[b].textContent.trim() &&
-            first === grids[c].textContent.trim()
-        ) {
-            return first === "X" ? "X win" : "O win";
-        }
+    if (
+      first !== "" &&
+      first === grids[b].textContent.trim() &&
+      first === grids[c].textContent.trim()
+    ) {
+      return first === "X" ? "X win" : "O win";
     }
+  }
 
-    return null;
+  return null;
 }
 
 function createState() {
+  const state = [];
 
-    const state = [];
+  grids.forEach((grid) => {
+    const value = grid.textContent.trim();
 
-    grids.forEach((grid) => {
+    if (value === "X") {
+      state.push("X");
+    } else if (value === "O") {
+      state.push("O");
+    } else {
+      state.push("");
+    }
+  });
 
-        const value = grid.textContent.trim();
-
-        if (value === "X") {
-            state.push("X");
-        }
-        else if (value === "O") {
-            state.push("O");
-        }
-        else {
-            state.push("");
-        }
-
-    });
-
-    return JSON.stringify(state);
+  return JSON.stringify(state);
 }
 
 function getRandomMove() {
+  const availableMoves = checkAvailableMoves();
 
-    const availableMoves = checkAvailableMoves();
+  if (availableMoves.length === 0) {
+    return null;
+  }
 
-    if (availableMoves.length === 0) {
-        return null;
-    }
+  const randomIndex = Math.floor(Math.random() * availableMoves.length);
 
-    const randomIndex =
-        Math.floor(
-            Math.random() * availableMoves.length
-        );
-
-    return availableMoves[randomIndex];
+  return availableMoves[randomIndex];
 }
 
 function getBestAction(state) {
+  const actions = data[state];
 
-    const actions = data[state];
+  if (!actions) {
+    return null;
+  }
 
-    if (!actions) {
-        return null;
+  const availableMoves = checkAvailableMoves();
+
+  let bestAction = null;
+  let bestValue = -Infinity;
+
+  for (const action of availableMoves) {
+    if (actions[action] === undefined) {
+      continue;
     }
 
-    const availableMoves = checkAvailableMoves();
+    const value = Number(actions[action]);
 
-    let bestAction = null;
-    let bestValue = -Infinity;
-
-    for (const action of availableMoves) {
-
-        if (actions[action] === undefined) {
-            continue;
-        }
-
-        const value = Number(actions[action]);
-
-        if (!Number.isFinite(value)) {
-            continue;
-        }
-
-        if (value > bestValue) {
-            bestValue = value;
-            bestAction = Number(action);
-        }
+    if (!Number.isFinite(value)) {
+      continue;
     }
 
-    return bestAction;
+    if (value > bestValue) {
+      bestValue = value;
+      bestAction = Number(action);
+    }
+  }
+
+  return bestAction;
 }
 
 function makeBotMove() {
+  let action;
 
-    let action;
+  const isFirstMove = checkAvailableMoves().length === 9;
 
-    const isFirstMove =
-        checkAvailableMoves().length === 9;
+  if (isFirstMove) {
+    action = getRandomMove();
+  } else {
+    const state = createState();
 
-    if (isFirstMove) {
+    action = getBestAction(state);
 
-        action = getRandomMove();
-
+    if (action === null) {
+      action = getRandomMove();
     }
-    else {
+  }
 
-        const state = createState();
+  if (
+    action === null ||
+    !Number.isInteger(action) ||
+    action < 0 ||
+    action > 8
+  ) {
+    console.error("Invalid bot action:", action);
 
-        action = getBestAction(state);
+    return;
+  }
 
-        if (action === null) {
-            action = getRandomMove();
-        }
+  if (!checkAvailableMoves().includes(action)) {
+    console.error("Bot selected occupied cell:", action);
+
+    action = getRandomMove();
+
+    if (action === null) {
+      return;
     }
+  }
 
-    if (
-        action === null ||
-        !Number.isInteger(action) ||
-        action < 0 ||
-        action > 8
-    ) {
-        console.error(
-            "Invalid bot action:",
-            action
-        );
+  grids[action].textContent = "O";
+  grids[action].style.color = "red";
 
-        return;
-    }
+  if (checkWinner() === "O win") {
+    showPanel("O win");
 
-    if (
-        !checkAvailableMoves().includes(action)
-    ) {
-        console.error(
-            "Bot selected occupied cell:",
-            action
-        );
+    gridParent.removeEventListener("click", clickHandler);
 
-        action = getRandomMove();
+    return;
+  }
 
-        if (action === null) {
-            return;
-        }
-    }
+  if (checkDraw()) {
+    showPanel("Draw");
 
-    grids[action].textContent = "O";
-    grids[action].style.color = 'red'
+    gridParent.removeEventListener("click", clickHandler);
 
-    if (checkWinner() === "O win") {
+    return;
+  }
 
-        showPanel(
-            "O win"
-        );
+  move = "user";
 
-        gridParent.removeEventListener(
-            "click",
-            clickHandler
-        );
-
-        return;
-    }
-
-    if (checkDraw()) {
-
-        showPanel(
-            "Draw"
-        );
-
-        gridParent.removeEventListener(
-            "click",
-            clickHandler
-        );
-
-        return;
-    }
-
-    move = "user";
-
-    showPanel(
-        "Your turn! Make your move"
-    );
+  showPanel("Your turn! Make your move");
 }
 
 function clickHandler(event) {
+  if (move !== "user") {
+    return;
+  }
 
-    if (move !== "user") {
-        return;
-    }
+  const target = event.target;
 
-    const target = event.target;
+  if (!target.classList.contains("grid")) {
+    return;
+  }
 
-    if (!target.classList.contains("grid")) {
-        return;
-    }
+  const userMove = getGridIndex(target);
 
-    const userMove =
-        getGridIndex(target);
+  if (!Number.isInteger(userMove) || userMove < 0 || userMove > 8) {
+    return;
+  }
 
-    if (
-        !Number.isInteger(userMove) ||
-        userMove < 0 ||
-        userMove > 8
-    ) {
-        return;
-    }
+  const availableMoves = checkAvailableMoves();
 
-    const availableMoves =
-        checkAvailableMoves();
+  if (!availableMoves.includes(userMove)) {
+    showPanel("Already Filled");
 
-    if (!availableMoves.includes(userMove)) {
+    return;
+  }
 
-        showPanel(
-            "Already Filled"
-        );
+  grids[userMove].textContent = "X";
+  grids[userMove].style.color = "green";
+  if (checkWinner() === "X win") {
+    showPanel("X win");
 
-        return;
-    }
+    gridParent.removeEventListener("click", clickHandler);
 
-    grids[userMove].textContent = "X";
-    grids[userMove].style.color = 'green'
-    if (checkWinner() === "X win") {
+    return;
+  }
 
-        showPanel(
-            "X win"
-        );
+  if (checkDraw()) {
+    showPanel("Draw");
 
-        gridParent.removeEventListener(
-            "click",
-            clickHandler
-        );
+    gridParent.removeEventListener("click", clickHandler);
 
-        return;
-    }
+    return;
+  }
 
-    if (checkDraw()) {
+  move = "bot";
 
-        showPanel(
-            "Draw"
-        );
+  showPanel("AI is thinking...");
 
-        gridParent.removeEventListener(
-            "click",
-            clickHandler
-        );
-
-        return;
-    }
-
-    move = "bot";
-
-    showPanel(
-        "AI is thinking..."
-    );
-
-    setTimeout(() => {
-        makeBotMove();
-    }, 700);
+  setTimeout(() => {
+    makeBotMove();
+  }, 700);
 }
 
-gridParent.addEventListener(
-    "click",
-    clickHandler
-);
+gridParent.addEventListener("click", clickHandler);
 
-showPanel(
-    "AI is thinking..."
-);
+showPanel("AI is thinking...");
 
 setTimeout(() => {
-    makeBotMove();
+  makeBotMove();
 }, 700);

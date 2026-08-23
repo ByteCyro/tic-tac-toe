@@ -105,7 +105,7 @@ function makeBotMove () {
     }
     else if (userWinningMove != null){
         grids[userWinningMove].textContent = 'O'
-        grids[userWinningMove].textContent = 'red'
+        grids[userWinningMove].style.color = 'red'
         if(checkWinner() == 'O win'){
             showPanel('O win')
             gridParent.removeEventListener('click',clickHandler)
