@@ -196,7 +196,7 @@ function makeBotMove() {
     }
 
     grids[action].textContent = "O";
-    grid[action].style.color = 'red'
+    grids[action].style.color = 'red'
 
     if (checkWinner() === "O win") {
 
