@@ -1,4 +1,5 @@
 import { data } from "./RL_data.js";
+import { recordPlayerResult } from "./playerStats.js";
 
 const grids = document.querySelectorAll(".gridParent div");
 const gridParent = document.querySelector(".gridParent");
@@ -25,6 +26,21 @@ let move = "bot";
 function showPanel(text) {
   message.textContent = text;
   decisionPanel.style.display = "flex";
+}
+
+function finishGame(text) {
+  let finalMessage = text;
+  const result = text === "X win" ? "win" : text === "O win" ? "loss" : "draw";
+
+  try {
+    recordPlayerResult(result);
+  } catch (error) {
+    console.error("Failed to save player statistics.", error);
+    finalMessage += ". Your statistics could not be saved.";
+  }
+
+  showPanel(finalMessage);
+  gridParent.removeEventListener("click", clickHandler);
 }
 
 function getGridIndex(grid) {
@@ -164,21 +180,15 @@ function makeBotMove() {
   }
 
   grids[action].textContent = "O";
-  grids[action].style.color = "red";
+  grids[action].classList.add("mark-o");
 
   if (checkWinner() === "O win") {
-    showPanel("O win");
-
-    gridParent.removeEventListener("click", clickHandler);
-
+    finishGame("O win");
     return;
   }
 
   if (checkDraw()) {
-    showPanel("Draw");
-
-    gridParent.removeEventListener("click", clickHandler);
-
+    finishGame("Draw");
     return;
   }
 
@@ -213,20 +223,14 @@ function clickHandler(event) {
   }
 
   grids[userMove].textContent = "X";
-  grids[userMove].style.color = "green";
+  grids[userMove].classList.add("mark-x");
   if (checkWinner() === "X win") {
-    showPanel("X win");
-
-    gridParent.removeEventListener("click", clickHandler);
-
+    finishGame("X win");
     return;
   }
 
   if (checkDraw()) {
-    showPanel("Draw");
-
-    gridParent.removeEventListener("click", clickHandler);
-
+    finishGame("Draw");
     return;
   }
 

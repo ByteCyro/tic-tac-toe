@@ -1,3 +1,5 @@
+import { recordPlayerResult } from "./playerStats.js";
+
 const grids = document.querySelectorAll(".gridParent div");
 const gridParent = document.querySelector(".gridParent");
 const decisionPanel = document.getElementById("decisionPanel");
@@ -27,6 +29,21 @@ if (move === "user") {
 function showPanel(text) {
     message.textContent = text;
     decisionPanel.style.display = "flex";
+}
+
+function finishGame(text) {
+    let finalMessage = text;
+    const result = text === "X win" ? "win" : text === "O win" ? "loss" : "draw";
+
+    try {
+        recordPlayerResult(result);
+    } catch (error) {
+        console.error("Failed to save player statistics.", error);
+        finalMessage += ". Your statistics could not be saved.";
+    }
+
+    showPanel(finalMessage);
+    gridParent.removeEventListener("click", clickHandler);
 }
 
 function getBoard() {
@@ -135,19 +152,17 @@ function makeBotMove() {
     if (bestMove === null) return;
 
     grids[bestMove].textContent = "O";
-    grids[bestMove].style.color = 'red'
+    grids[bestMove].classList.add("mark-o");
 
     const board = getBoard();
 
     if (checkWinner(board) === "O") {
-        showPanel("O win");
-        gridParent.removeEventListener("click", clickHandler);
+        finishGame("O win");
         return;
     }
 
     if (checkDraw(board)) {
-        showPanel("Draw");
-        gridParent.removeEventListener("click", clickHandler);
+        finishGame("Draw");
         return;
     }
 
@@ -168,19 +183,17 @@ function clickHandler(event) {
     }
 
     grids[userMove].textContent = "X";
-    grids[userMove].style.color = 'green'
+    grids[userMove].classList.add("mark-x");
 
     const updatedBoard = getBoard();
 
     if (checkWinner(updatedBoard) === "X") {
-        showPanel("X win");
-        gridParent.removeEventListener("click", clickHandler);
+        finishGame("X win");
         return;
     }
 
     if (checkDraw(updatedBoard)) {
-        showPanel("Draw");
-        gridParent.removeEventListener("click", clickHandler);
+        finishGame("Draw");
         return;
     }
 

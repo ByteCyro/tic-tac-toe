@@ -1,5 +1,7 @@
 
 
+import { recordPlayerResult } from "./playerStats.js";
+
 const grids = document.querySelectorAll(".gridParent div");
 const gridParent = document.querySelector(".gridParent");
 const decisionPanel = document.getElementById("decisionPanel");
@@ -58,6 +60,21 @@ function showPanel(text) {
     decisionPanel.style.display = "flex";
 }
 
+function finishGame(text) {
+    let finalMessage = text;
+    const result = text === "X win" ? "win" : text === "O win" ? "loss" : "draw";
+
+    try {
+        recordPlayerResult(result);
+    } catch (error) {
+        console.error("Failed to save player statistics.", error);
+        finalMessage += ". Your statistics could not be saved.";
+    }
+
+    showPanel(finalMessage);
+    gridParent.removeEventListener("click", clickHandler);
+}
+
 
 
 function findWinningMove (player) {
@@ -93,57 +110,49 @@ function makeBotMove () {
     let avlCorners = findCorner()
     if( botWinningMove != null) {
         grids[botWinningMove].textContent = 'O'
-        grids[botWinningMove].style.color = 'red'
+        grids[botWinningMove].classList.add("mark-o");
         if(checkWinner() == 'O win'){
-            showPanel('O win')
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame('O win')
             return
         }
         else if (checkDraw() == 'Draw'){
-            showPanel(`Draw`)
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame("Draw")
             return
         }
     }
     else if (userWinningMove != null){
         grids[userWinningMove].textContent = 'O'
-        grids[userWinningMove].style.color = 'red'
+        grids[userWinningMove].classList.add("mark-o");
         if(checkWinner() == 'O win'){
-            showPanel('O win')
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame('O win')
             return
         }
         else if (checkDraw() == 'Draw'){
-            showPanel(`Draw`)
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame("Draw")
             return
         }
     }
     else if (avlCenter != null){
         grids[avlCenter].textContent = 'O'
-        grids[avlCenter].style.color = 'red'
+        grids[avlCenter].classList.add("mark-o");
         if(checkWinner() == 'O win'){
-            showPanel('O win')
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame('O win')
             return
         }
         else if (checkDraw() == 'Draw'){
-            showPanel(`Draw`)
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame("Draw")
             return
         }
     }
     else if (avlCorners != null) {
         grids[avlCorners].textContent = 'O'
-        grids[avlCorners].style.color = 'red'
+        grids[avlCorners].classList.add("mark-o");
         if(checkWinner() == 'O win'){
-            showPanel('O win')
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame('O win')
             return
         }
         else if (checkDraw() == 'Draw'){
-            showPanel(`Draw`)
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame("Draw")
             return
         }
     }
@@ -152,16 +161,14 @@ function makeBotMove () {
     const avlMoves = availableMoves()
     const random = Math.floor(Math.random() * avlMoves.length)
     grids[avlMoves[random]].textContent = 'O'
-    grids[avlMoves[random]].style.color = 'red'
+    grids[avlMoves[random]].classList.add("mark-o");
     console.log(checkWinner() == 'O win')
     if(checkWinner() == 'O win'){
-            showPanel('O win')
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame('O win')
             return
         }
         else if (checkDraw() == 'Draw'){
-            showPanel(`Draw`)
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame("Draw")
             return
         }
     
@@ -182,15 +189,13 @@ function clickHandler (event) {
             return
         }
         grids[Number(target.className)].textContent = 'X'
-        grids[Number(target.className)].style.color = 'green'
+        grids[Number(target.className)].classList.add("mark-x");
         if(checkWinner() == 'X win'){
-            showPanel('X win')
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame('X win')
             return
         }
         else if (checkDraw() == 'Draw'){
-            showPanel(`Draw`)
-            gridParent.removeEventListener('click',clickHandler)
+            finishGame("Draw")
             return
         }
         move = 'bot'

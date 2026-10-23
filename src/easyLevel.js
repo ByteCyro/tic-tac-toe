@@ -1,3 +1,5 @@
+import { recordPlayerResult } from "./playerStats.js";
+
 const grids = document.querySelectorAll(".gridParent div");
 const gridParent = document.querySelector(".gridParent");
 const decisionPanel = document.getElementById("decisionPanel");
@@ -59,20 +61,32 @@ function showPanel(text) {
     decisionPanel.style.display = "flex";
 }
 
+function finishGame(text, result) {
+    let finalMessage = text;
+
+    try {
+        recordPlayerResult(result);
+    } catch (error) {
+        console.error("Failed to save player statistics.", error);
+        finalMessage += ". Your statistics could not be saved.";
+    }
+
+    showPanel(finalMessage);
+    gridParent.removeEventListener("click", handleClick);
+}
+
 function checkGameState() {
     const winner = checkWinner();
 
     if (winner !== null) {
         gameOver = true;
-        showPanel(winner);
-        gridParent.removeEventListener("click", handleClick);
+        finishGame(winner, winner === "X win" ? "win" : "loss");
         return true;
     }
 
     if (availableMoves().length === 0) {
         gameOver = true;
-        showPanel("Draw");
-        gridParent.removeEventListener("click", handleClick);
+        finishGame("Draw", "draw");
         return true;
     }
 
@@ -95,7 +109,7 @@ function makeBotMove() {
     const position = moves[randomIndex];
 
     grids[position].textContent = "O";
-    grids[position].style.color = 'red';
+    grids[position].classList.add("mark-o");
 
     if (checkGameState()) {
         return;
@@ -121,7 +135,7 @@ function handleClick(event) {
     }
 
     target.textContent = "X";
-    target.style.color = 'green';
+    target.classList.add("mark-x");
 
     if (checkGameState()) {
         return;
