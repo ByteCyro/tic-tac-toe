@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4525a5">
+    <title>Player Statistics - Tic Tac Toe</title>
+    <link rel="stylesheet" href="./src/styles/stats.css">
+</head>
+<body>
+    <main class="stats-card">
+        <a class="back-link" href="./level.html">← Game modes</a>
+        <header class="stats-heading">
+            <p class="eyebrow">YOUR RECORD</p>
+            <h1>Player Statistics</h1>
+            <p class="subheading">Your results are saved on this device.</p>
+        </header>
+
+        <p class="stats-message" id="statsMessage" role="status" aria-live="polite"></p>
+
+        <section class="stats-grid" aria-label="Player statistics">
+            <article class="stat-tile stat-total">
+                <span class="stat-value" id="totalGames">0</span>
+                <span class="stat-label">Total games</span>
+            </article>
+            <article class="stat-tile stat-wins">
+                <span class="stat-value" id="wins">0</span>
+                <span class="stat-label">Wins</span>
+            </article>
+            <article class="stat-tile stat-losses">
+                <span class="stat-value" id="losses">0</span>
+                <span class="stat-label">Losses</span>
+            </article>
+            <article class="stat-tile stat-draws">
+                <span class="stat-value" id="draws">0</span>
+                <span class="stat-label">Draws</span>
+            </article>
+            <article class="stat-tile stat-rate">
+                <span class="stat-value" id="winRate">0.0%</span>
+                <span class="stat-label">Win rate</span>
+            </article>
+            <article class="stat-tile stat-streak">
+                <span class="stat-value" id="bestStreak">0</span>
+                <span class="stat-label">Best winning streak</span>
+            </article>
+        </section>
+
+        <p class="stats-note">Statistics include bot games and local games from Player X's perspective.</p>
+        <button class="reset-button" id="resetStats" type="button">Reset statistics</button>
+    </main>
+    <script type="module" src="./src/statsPage.js"></script>
+</body>
+</html>
